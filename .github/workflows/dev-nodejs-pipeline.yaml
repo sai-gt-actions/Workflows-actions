@@ -107,10 +107,9 @@ jobs:
         docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}
 
     - name: authenticate to EKS
-      run: echo "authentication"
-    #   run: |
-    #     aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
-    #     kubectl get nodes
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
+        kubectl get nodes
 
     # - name: checkout catalogue deploy repo
     #   uses: actions/checkout@v6
