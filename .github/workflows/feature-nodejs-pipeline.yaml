@@ -48,9 +48,19 @@ jobs:
         description: ${{ steps.unit_tests.outcome }}
 
     - name: docker build
+      id: docker_build
       run: |
         docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
         docker images
+    - name: Update docker build status
+      if: always()
+      uses: sai-gt-actions/Workflows-actions/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.docker_build.outcome }}     # success / failure / cancelled
+        context: DOCKER_BUILD
+        description: ${{ steps.docker_build.outcome }}
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
