@@ -111,21 +111,21 @@ jobs:
         aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
         kubectl get nodes
 
-    # - name: checkout catalogue deploy repo
-    #   uses: actions/checkout@v6
-    #   with:
-    #     repository: daws-86s/catalogue-deploy
+    - name: checkout catalogue deploy repo
+      uses: actions/checkout@v6
+      with:
+        repository: sai-gt-actions/Catalogue-deploy-actions
 
-    # - name: deploy to DEV cluster
-    #   id: dev_deploy
-    #   run:
-    #     "helm upgrade --install ${{ inputs.component}} -f values-${{ inputs.environment }}.yaml -n ${{ inputs.project }} --set deployment.imageVersion=${APP_VERSION} --atomic --wait --timeout=5m ."
+    - name: deploy to DEV cluster
+      id: dev_deploy
+      run:
+        "helm upgrade --install ${{ inputs.component}} -f values-${{ inputs.environment }}.yaml -n ${{ inputs.project }} --set deployment.imageVersion=${APP_VERSION} --atomic --wait --timeout=5m ."
 
-    # - name: Update DEV Deploy status
-    #   if: always()
-    #   uses: sai-gt-actions/Workflows-actions/.github/actions/update-commit-status@main
-    #   with:
-    #     sha: ${{ github.sha }}
-    #     state: ${{ steps.dev_deploy.outcome }}     # success / failure / cancelled
-    #     context: DEV_DEPLOY
-    #     description: ${{ steps.dev_deploy.outcome }}
+    - name: Update DEV Deploy status
+      if: always()
+      uses: sai-gt-actions/Workflows-actions/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.dev_deploy.outcome }}     # success / failure / cancelled
+        context: DEV_DEPLOY
+        description: ${{ steps.dev_deploy.outcome }}
