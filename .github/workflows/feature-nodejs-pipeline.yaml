@@ -61,6 +61,41 @@ jobs:
         context: DOCKER_BUILD
         description: ${{ steps.docker_build.outcome }}
 
+    - name: Security Check (Dependabot + Trivy)
+      id: security_check
+      # env:
+      #   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      shell: bash
+      run: |
+
+        echo "🔍 Running Trivy scan..."
+        trivy image \
+          --scanners vuln \
+          --severity HIGH,CRITICAL,MEDIUM \
+          --pkg-types os \
+          --exit-code 1 \
+          --format table \
+          ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}
+
+        TRIVY_RESULT=$?
+
+        if [ "$TRIVY_RESULT" -ne 0 ]; then
+          echo "❌ Trivy found vulnerabilities (HIGH/CRITICAL/MEDIUM)"
+          exit 1
+        fi
+
+        echo "✅ Trivy scan passed without blocking issues."
+
+    - name: Update scan status
+      if: always()
+      uses: sai-gt-actions/Workflows-actions/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.security_check.outcome }}     # success / failure / cancelled
+        context: SECURITY_CHECK
+        description: ${{ steps.security_check.outcome }}
+
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
